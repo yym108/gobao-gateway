@@ -13,7 +13,7 @@ import (
 
 func main() {
 	log := logger.New("gateway", "info")
-	defer log.Sync()
+	defer func() { _ = log.Sync() }()
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
