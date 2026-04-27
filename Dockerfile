@@ -1,6 +1,7 @@
 FROM golang:1.26 AS build
 WORKDIR /src
 COPY gobao-pkg gobao-pkg
+COPY gobao-proto gobao-proto
 COPY gobao-gateway gobao-gateway
 ENV GOWORK=off
 RUN cd /src/gobao-gateway && go build -o /out/server ./cmd/server
