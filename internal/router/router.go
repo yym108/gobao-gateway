@@ -1,6 +1,6 @@
 // Package router 提供 Gateway 的 Gin 路由配置。
 // 路由分为公开路由（无需鉴权）和受保护路由（需 JWT 中间件校验），
-// 实现 Client → Gateway(JWT) → User Service(gRPC) 的鉴权链路。
+// 实现 Client → Gateway(JWT) → 后端微服务(gRPC) 的网关转发链路。
 package router
 
 import (
@@ -16,7 +16,8 @@ import (
 // New 创建并返回配置好中间件和路由的 Gin 引擎。
 //   - jwtMgr:      JWT 管理器，用于受保护路由的鉴权中间件
 //   - authHandler: 认证相关的 HTTP handler（注册/登录/获取当前用户）
-func New(jwtMgr *authn.JWTManager, authHandler *handler.AuthHandler) *gin.Engine {
+//   - productHandler: 商品/类目相关的 HTTP handler
+func New(jwtMgr *authn.JWTManager, authHandler *handler.AuthHandler, productHandler *handler.ProductHandler) *gin.Engine {
 	r := gin.New()
 
 	// 全局中间件：日志、panic 恢复、请求 ID 注入
@@ -29,9 +30,12 @@ func New(jwtMgr *authn.JWTManager, authHandler *handler.AuthHandler) *gin.Engine
 	v1 := r.Group("/api/v1")
 
 	// ── 公开路由（无需 JWT） ──
-	pub := v1.Group("/auth")
-	pub.POST("/register", authHandler.Register) // 用户注册
-	pub.POST("/login", authHandler.Login)       // 用户登录
+	pub := v1.Group("")
+	pub.POST("/auth/register", authHandler.Register) // 用户注册
+	pub.POST("/auth/login", authHandler.Login)       // 用户登录
+	pub.GET("/products", productHandler.ListProducts)
+	pub.GET("/products/:id", productHandler.GetProduct)
+	pub.GET("/categories", productHandler.ListCategories)
 
 	// ── 受保护路由（需 JWT 中间件校验） ──
 	protected := v1.Group("")
@@ -41,6 +45,12 @@ func New(jwtMgr *authn.JWTManager, authHandler *handler.AuthHandler) *gin.Engine
 		// 返回 pong + 当前登录用户 ID，用于验证鉴权链路
 		c.JSON(200, gin.H{"pong": true, "user_id": c.GetInt64("userID")})
 	})
+	protected.POST("/products", productHandler.CreateProduct)
+	protected.PUT("/products/:id", productHandler.UpdateProduct)
+	protected.DELETE("/products/:id", productHandler.DeleteProduct)
+	protected.POST("/categories", productHandler.CreateCategory)
+	protected.PUT("/categories/:id", productHandler.UpdateCategory)
+	protected.DELETE("/categories/:id", productHandler.DeleteCategory)
 
 	return r
 }

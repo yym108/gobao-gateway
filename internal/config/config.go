@@ -4,8 +4,9 @@ package config
 
 // Config 是 Gateway 的完整配置。
 type Config struct {
-	Addr         string `mapstructure:"addr"`           // HTTP 监听地址，如 ":8080"
-	UserGRPCAddr string `mapstructure:"user_grpc_addr"` // User 服务的 gRPC 地址，如 "user:9090"
-	JWTSecret    string `mapstructure:"jwt_secret"`     // JWT 签名密钥（需与 User 服务保持一致）
-	LogLevel     string `mapstructure:"log_level"`      // 日志级别：debug/info/warn/error
+	Addr            string `mapstructure:"addr"`              // HTTP 监听地址，如 ":8080"
+	UserGRPCAddr    string `mapstructure:"user_grpc_addr"`    // User 服务的 gRPC 地址，如 "user:9090"
+	ProductGRPCAddr string `mapstructure:"product_grpc_addr"` // Product 服务的 gRPC 地址，如 "product:9090"
+	JWTSecret       string `mapstructure:"jwt_secret"`        // JWT 签名密钥（需与 User 服务保持一致）
+	LogLevel        string `mapstructure:"log_level"`         // 日志级别：debug/info/warn/error
 }
