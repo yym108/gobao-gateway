@@ -6,4 +6,4 @@ coverage.txt
 .idea/
 .vscode/
 bin/
-server
+/server
