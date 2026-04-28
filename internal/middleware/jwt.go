@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yym/gobao-pkg/authn"
+	"github.com/yym108/gobao-pkg/authn"
 )
 
 // JWTAuth 返回 Gin 中间件，从 Authorization: Bearer <token> 提取 JWT，

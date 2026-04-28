@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/yym/gobao-gateway/internal/client"
+	"github.com/yym108/gobao-gateway/internal/client"
 )
 
 // AuthHandler 处理用户认证相关的 HTTP 请求（注册、登录、获取当前用户）。

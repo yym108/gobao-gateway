@@ -7,14 +7,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/yym/gobao-pkg/authn"
-	pkgcfg "github.com/yym/gobao-pkg/config"
-	"github.com/yym/gobao-pkg/logger"
+	"github.com/yym108/gobao-pkg/authn"
+	pkgcfg "github.com/yym108/gobao-pkg/config"
+	"github.com/yym108/gobao-pkg/logger"
 
-	"github.com/yym/gobao-gateway/internal/client"
-	"github.com/yym/gobao-gateway/internal/config"
-	"github.com/yym/gobao-gateway/internal/handler"
-	"github.com/yym/gobao-gateway/internal/router"
+	"github.com/yym108/gobao-gateway/internal/client"
+	"github.com/yym108/gobao-gateway/internal/config"
+	"github.com/yym108/gobao-gateway/internal/handler"
+	"github.com/yym108/gobao-gateway/internal/router"
 )
 
 func main() {

@@ -1,18 +1,13 @@
-module github.com/yym/gobao-gateway
+module github.com/yym108/gobao-gateway
 
 go 1.26.2
-
-replace (
-	github.com/yym/gobao-pkg => ../gobao-pkg
-	github.com/yym/gobao-proto => ../gobao-proto
-)
 
 require (
 	github.com/gin-gonic/gin v1.12.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/stretchr/testify v1.11.1
-	github.com/yym/gobao-pkg v0.0.0-00010101000000-000000000000
-	github.com/yym/gobao-proto v0.0.0-00010101000000-000000000000
+	github.com/yym108/gobao-pkg v0.1.0
+	github.com/yym108/gobao-proto v0.1.0
 	google.golang.org/grpc v1.80.0
 )
 

@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/yym/gobao-gateway/internal/handler"
-	"github.com/yym/gobao-gateway/internal/middleware"
-	"github.com/yym/gobao-pkg/authn"
-	"github.com/yym/gobao-pkg/httpx"
+	"github.com/yym108/gobao-gateway/internal/handler"
+	"github.com/yym108/gobao-gateway/internal/middleware"
+	"github.com/yym108/gobao-pkg/authn"
+	"github.com/yym108/gobao-pkg/httpx"
 )
 
 // New 创建并返回配置好中间件和路由的 Gin 引擎。

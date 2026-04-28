@@ -4,7 +4,7 @@ package client
 import (
 	"context"
 
-	userv1 "github.com/yym/gobao-proto/gen/go/gobao/user/v1"
+	userv1 "github.com/yym108/gobao-proto/gen/go/gobao/user/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

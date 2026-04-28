@@ -120,6 +120,10 @@ github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS
 github.com/twitchyliquid64/golang-asm v0.15.1/go.mod h1:a1lVb/DtPvCB8fslRZhAngC2+aY1QWCk3Cedj/Gdt08=
 github.com/ugorji/go/codec v1.3.1 h1:waO7eEiFDwidsBN6agj1vJQ4AG7lh2yqXyOXqhgQuyY=
 github.com/ugorji/go/codec v1.3.1/go.mod h1:pRBVtBSKl77K30Bv8R2P+cLSGaTtex6fsA2Wjqmfxj4=
+github.com/yym108/gobao-pkg v0.1.0 h1:G1jE2OHBiMTDbkUKaQCFs/Vp8OSnoyEBRB3lzqhNkfE=
+github.com/yym108/gobao-pkg v0.1.0/go.mod h1:okQ4BeJxXxNIqe76yXeIdSMqRimFNuG+1FQ5BJu/VX8=
+github.com/yym108/gobao-proto v0.1.0 h1:sU1DZdxVk6b2RAKW+v1Tqg7eqT+cQ/ShOmnrL60cNcQ=
+github.com/yym108/gobao-proto v0.1.0/go.mod h1:BvhPJI+q6cGMrKh5siE2wdwqU9i1L1+M6+phae/Owfs=
 go.mongodb.org/mongo-driver/v2 v2.5.0 h1:yXUhImUjjAInNcpTcAlPHiT7bIXhshCTL3jVBkF3xaE=
 go.mongodb.org/mongo-driver/v2 v2.5.0/go.mod h1:yOI9kBsufol30iFsl1slpdq1I0eHPzybRWdyYUs8K/0=
 go.opentelemetry.io/auto/sdk v1.2.1 h1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ64=
