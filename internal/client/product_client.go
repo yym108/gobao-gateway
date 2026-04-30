@@ -79,3 +79,13 @@ func (c *ProductClient) UpdateCategory(ctx context.Context, req *productv1.Updat
 func (c *ProductClient) DeleteCategory(ctx context.Context, req *productv1.DeleteCategoryRequest) (*productv1.DeleteCategoryResponse, error) {
 	return c.client.DeleteCategory(ctx, req)
 }
+
+// GetSeckillActivity 调用 Product 服务的查询秒杀活动 RPC。
+func (c *ProductClient) GetSeckillActivity(ctx context.Context, req *productv1.GetSeckillActivityRequest) (*productv1.GetSeckillActivityResponse, error) {
+	return c.client.GetSeckillActivity(ctx, req)
+}
+
+// PrewarmSeckill 调用 Product 服务的秒杀预热 RPC。
+func (c *ProductClient) PrewarmSeckill(ctx context.Context, req *productv1.PrewarmSeckillRequest) (*productv1.PrewarmSeckillResponse, error) {
+	return c.client.PrewarmSeckill(ctx, req)
+}

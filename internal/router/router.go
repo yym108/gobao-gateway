@@ -17,7 +17,13 @@ import (
 //   - jwtMgr:      JWT 管理器，用于受保护路由的鉴权中间件
 //   - authHandler: 认证相关的 HTTP handler（注册/登录/获取当前用户）
 //   - productHandler: 商品/类目相关的 HTTP handler
-func New(jwtMgr *authn.JWTManager, authHandler *handler.AuthHandler, productHandler *handler.ProductHandler) *gin.Engine {
+//   - seckillHandler: 秒杀活动相关的 HTTP handler
+func New(
+	jwtMgr *authn.JWTManager,
+	authHandler *handler.AuthHandler,
+	productHandler *handler.ProductHandler,
+	seckillHandler *handler.SeckillHandler,
+) *gin.Engine {
 	r := gin.New()
 
 	// 全局中间件：日志、panic 恢复、请求 ID 注入
@@ -36,6 +42,7 @@ func New(jwtMgr *authn.JWTManager, authHandler *handler.AuthHandler, productHand
 	pub.GET("/products", productHandler.ListProducts)
 	pub.GET("/products/:id", productHandler.GetProduct)
 	pub.GET("/categories", productHandler.ListCategories)
+	pub.GET("/seckill/activities/:id", seckillHandler.GetActivity)
 
 	// ── 受保护路由（需 JWT 中间件校验） ──
 	protected := v1.Group("")
@@ -51,6 +58,8 @@ func New(jwtMgr *authn.JWTManager, authHandler *handler.AuthHandler, productHand
 	protected.POST("/categories", productHandler.CreateCategory)
 	protected.PUT("/categories/:id", productHandler.UpdateCategory)
 	protected.DELETE("/categories/:id", productHandler.DeleteCategory)
+	protected.POST("/seckill/activities/:id/prewarm", seckillHandler.PrewarmActivity)
+	protected.POST("/seckill/activities/:id/purchase", seckillHandler.Purchase)
 
 	return r
 }
