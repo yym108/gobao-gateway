@@ -13,6 +13,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/yym108/gobao-gateway/internal/client"
+	"github.com/yym108/gobao-pkg/cache"
 	"github.com/yym108/gobao-pkg/idempotency"
 	"github.com/yym108/gobao-pkg/mq"
 	productv1 "github.com/yym108/gobao-proto/gen/go/gobao/product/v1"
@@ -22,10 +23,30 @@ import (
 // 它负责把查询/预热转发到 Product 服务，并把抢购请求做幂等校验后投递到消息总线。
 type SeckillHandler struct {
 	productClient  *client.ProductClient // Product 服务 gRPC client
+	rdb            *redis.Client         // Redis 客户端，用于库存预扣与失败回补
 	idemGuard      *idempotency.Guard    // Redis 幂等守卫
+	stockScript    *redis.Script         // 秒杀库存原子预扣 Lua 脚本
 	bus            *mq.Bus               // NATS JetStream 总线
 	seckillSubject string                // 秒杀下单投递主题
 }
+
+// seckillStockDeductScript 在 Redis 中原子执行库存预扣。
+// 返回值约定：
+//   - >= 0: 扣减后剩余库存
+//   - -1: 库存不足
+//   - -2: 未预热，库存 key 不存在
+const seckillStockDeductScript = `
+local current = redis.call("GET", KEYS[1])
+if not current then
+  return -2
+end
+local remain = tonumber(current)
+local deduct = tonumber(ARGV[1])
+if remain < deduct then
+  return -1
+end
+return redis.call("DECRBY", KEYS[1], deduct)
+`
 
 // SeckillPurchaseRequest 描述抢购入口的请求体。
 type SeckillPurchaseRequest struct {
@@ -57,7 +78,9 @@ func NewSeckillHandler(
 ) *SeckillHandler {
 	return &SeckillHandler{
 		productClient:  productClient,
+		rdb:            rdb,
 		idemGuard:      idempotency.New(rdb, "seckill:req:"),
+		stockScript:    cache.LoadScript(seckillStockDeductScript),
 		bus:            bus,
 		seckillSubject: seckillSubject,
 	}
@@ -119,6 +142,16 @@ func (h *SeckillHandler) Purchase(c *gin.Context) {
 	if h.handleGRPC(c, err) {
 		return
 	}
+	activity := activityResp.GetActivity()
+	now := time.Now().Unix()
+	if activity.GetStartAt() > now {
+		c.JSON(http.StatusPreconditionFailed, gin.H{"error": "秒杀活动尚未开始"})
+		return
+	}
+	if activity.GetEndAt() <= now {
+		c.JSON(http.StatusPreconditionFailed, gin.H{"error": "秒杀活动已结束"})
+		return
+	}
 
 	userID := c.GetInt64("userID")
 	idemKey := fmt.Sprintf("%d:%d:%s", userID, activityID, req.RequestID)
@@ -136,20 +169,37 @@ func (h *SeckillHandler) Purchase(c *gin.Context) {
 		return
 	}
 
+	stockKey := fmt.Sprintf("seckill:activity:%d:stock", activityID)
+	remaining, err := h.stockScript.Run(c.Request.Context(), h.rdb, []string{stockKey}, req.Quantity).Int64()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if remaining == -2 {
+		c.JSON(http.StatusPreconditionFailed, gin.H{"error": "秒杀活动尚未预热"})
+		return
+	}
+	if remaining == -1 {
+		c.JSON(http.StatusConflict, gin.H{"error": "秒杀库存不足"})
+		return
+	}
+
 	msg := seckillOrderMessage{
 		RequestID:  req.RequestID,
 		UserID:     userID,
 		ActivityID: activityID,
-		ProductID:  activityResp.GetActivity().GetProductId(),
+		ProductID:  activity.GetProductId(),
 		Quantity:   req.Quantity,
 		QueuedAt:   time.Now().Unix(),
 	}
 	payload, err := json.Marshal(msg)
 	if err != nil {
+		_ = h.rdb.IncrBy(c.Request.Context(), stockKey, int64(req.Quantity)).Err()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	if err := h.bus.Publish(c.Request.Context(), h.seckillSubject, payload); err != nil {
+		_ = h.rdb.IncrBy(c.Request.Context(), stockKey, int64(req.Quantity)).Err()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -162,5 +212,6 @@ func (h *SeckillHandler) Purchase(c *gin.Context) {
 		"subject":      h.seckillSubject,
 		"queued_at":    msg.QueuedAt,
 		"quantity":     req.Quantity,
+		"remaining":    remaining,
 	})
 }
