@@ -205,13 +205,13 @@ func (h *SeckillHandler) Purchase(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusAccepted, gin.H{
-		"queued":       true,
-		"request_id":   req.RequestID,
-		"activity_id":  activityID,
-		"product_id":   msg.ProductID,
-		"subject":      h.seckillSubject,
-		"queued_at":    msg.QueuedAt,
-		"quantity":     req.Quantity,
-		"remaining":    remaining,
+		"queued":      true,
+		"request_id":  req.RequestID,
+		"activity_id": activityID,
+		"product_id":  msg.ProductID,
+		"subject":     h.seckillSubject,
+		"queued_at":   msg.QueuedAt,
+		"quantity":    req.Quantity,
+		"remaining":   remaining,
 	})
 }
